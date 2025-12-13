@@ -1,5 +1,5 @@
 {
-    descritpion = "Dumy to mimicate the Google Ads API";
+    description = "Dumy to mimicate the Google Ads API";
     inputs = {
         nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
         flake-utils.url = "github:numtide/flake-utils";
