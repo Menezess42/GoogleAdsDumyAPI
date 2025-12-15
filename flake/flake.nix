@@ -29,7 +29,6 @@
 
                 shellHook = ''
                     echo "You can start build the Google Dumy API"
-                    alias pt="pytest -v"
                     '';
                 };
                 });
