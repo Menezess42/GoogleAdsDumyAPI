@@ -98,13 +98,24 @@ def simulated_API(gen):
     return api
 
 
-def main():
-    gen = mulberry32(42)
-    for _ in range(10):
-        api = simulated_API(gen)
-        print("\n")
-        pprint(api)
+gen = mulberry32(42)
 
 
-if __name__ == "__main__":
-    main()
+def test_reproducibility_of_seed_list1():
+    api = simulated_API(gen)
+    assert api["list1"] == "relogio"
+
+
+def test_reproducibility_of_seed_list2():
+    api = simulated_API(gen)
+    assert api["list2"] == "laranja"
+
+
+def test_reproducibility_of_seed_list3():
+    api = simulated_API(gen)
+    assert api["list3"] == "lobo"
+
+
+def test_reproducibility_of_seed_list4():
+    api = simulated_API(gen)
+    assert api["list4"] == "fotógrafo"
