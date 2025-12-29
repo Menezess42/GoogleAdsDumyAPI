@@ -27,9 +27,8 @@
 ---
 
 ## Public Interface (Client)
-    - Essential Methods:
-        - `get_campaings()` -> returns list of Campaign
-        - `get_campaign_metrics(campaign_id, start_date, end_date)` -> returns lsit of CampaignMetrics
+    - The way to go is to make like googleAdsAPI where you send a search querry and
+    the API sends you the information requested.
 ---
 
 ## Data Generation - Temporal Behavior
@@ -60,7 +59,6 @@
     ```
 - Consistency guarantees:
     - Same `seed` + same `data` + same `campaign_id` = same metrics
-    - Use hash of `f"{campaign_id}-{data}-{seed}"` as seed for random generator
     - Metrics always coherent: `clicks <= impressions`, `conversions <= clicks`
 
 - Automatic validation (Pydantic):

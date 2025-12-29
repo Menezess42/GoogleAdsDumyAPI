@@ -1,5 +1,5 @@
 from pprint import pprint
-
+import pandas as pd
 
 def mulberry32(seed):
     state = {"value": seed}
@@ -12,7 +12,6 @@ def mulberry32(seed):
         return ((t ^ (t >> 14)) >> 0) / 4294967296
 
     return generate
-
 
 aux_list = [
     "cadeira",
