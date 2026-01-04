@@ -91,4 +91,82 @@ class Lexer:
             return Token(TokenType.NUMBER, float(num_str), start_pos)
 
     def read_string(self):
-        ...
+        start_pos = self.pos
+        self.advance()
+
+        string_value = ""
+        while self.current_char is not None and self.current_char != "'":
+            string_value += self.current_char
+            self.advance()
+
+        if self.current_char != "'":
+            raise SyntaxError(f"Unterminated string at position {start_pos}")
+
+        self.advance()
+        return Token(TokenType.STRING, string_value, start_pos)
+
+    def read_identifier(self):
+        start_pos = self.pos
+        identifier = ""
+
+        while self.current_char is not None and (
+            self.current_char.isalnum() or self.current_char == "_"
+        ):
+            identifier += self.current_char
+            self.advance()
+
+        if identifier.upper() == "ORDER":
+            self.skip_whitespace()
+            if self.current_char is not None:
+                next_word = ""
+                temp_pos = self.pos
+                while self.current_char is not None and self.current_char.isalpha():
+                    next_word += self.current_char
+                    self.advance()
+
+                if next_word.upper() == "BY":
+                    return Token(TokenType.ORDER_BY, "ORDER_BY", start_pos)
+                else:
+                    self.pos = temp_pos
+                    self.current_char = (
+                        self.text[self.pos] if self.pos < len(self.text) else None
+                    )
+
+        upper_identifier = identifier.upper()
+        if upper_identifier in self.keywords:
+            return Token(self.keywords[upper_identifier], identifier, start_pos)
+
+        return Token(TokenType.IDENTIFIER, identifier, start_pos)
+
+    def tokenize(self) -> List[Token]:
+        tokens = []
+
+        while self.current_char is not None:
+            if self.current_char in " \t\n\r":
+                self.skip_whitespace()
+                continue
+            if self.current_char.isdigit():
+                tokens.append(self.read_number())
+                continue
+
+            if self.current_char == "'":
+                tokens.append(self.read_string())
+                continue
+
+            if self.current_char.isalpha() or self.current_char == "_":
+                tokens.append(self.read_identifier())
+                continue
+
+            if self.current_char in self.punctuation:
+                tokens.append(
+                    Token(
+                        self.punctuation[self.current_char], self.current_char, self.pos
+                    )
+                )
+                self.advance()
+                continue
+
+            raise SyntaxError(f"Unexpected character '{self.current_char}' at position {self.pos}")
+
+        tokens.append(Token(TokenType.EOF, None, self.pos))
+        return tokens
