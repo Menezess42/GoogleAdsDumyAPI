@@ -1,4 +1,4 @@
-from _SeedSystem import seedSystem
+from SeedSystem import seedSystem
 
 
 class Gad:
