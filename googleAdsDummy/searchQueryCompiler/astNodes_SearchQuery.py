@@ -1,10 +1,11 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
 
 
 class ASTNode(BaseModel):
-    pass
+    class Config:
+        arbitrary_types_allowed = True
 
 
 class FieldNode(ASTNode):
@@ -33,11 +34,16 @@ class BetweenNode(ASTNode):
 
 
 class WhereNode(ASTNode):
-    conditions: List[Any]
+    conditions: List[Union[ComparisonNode, BetweenNode]]
+
+
+class OrderByItemNode(ASTNode):
+    field: FieldNode
+    direction: str  # 'ASC' or 'DESC'
 
 
 class OrderByNode(ASTNode):
-    fields: List[tuple]
+    items: List[OrderByItemNode]
 
 
 class LimitNode(ASTNode):
