@@ -1,0 +1,49 @@
+<query> ::= "SELECT" <select_list> "FROM" <resource> <optional_clauses>
+
+<optional_clauses> ::= <where_clause> <order_by_clause> <limit_clause> | <where_clause> <order_by_clause> | <where_clause> <limit_clause> | <order_by_clause> <limit_clause> | <where_clause> | <order_by_clause> | <limit_clause> | ""
+
+<select_list> ::= <field> | <field> "," <select_list>
+
+<field> ::= <identifier> "." <identifier>
+
+<resource> ::= <identifier>
+
+<where_clause> ::= "WHERE" <condition_list>
+
+<condition_list> ::= <condition> | <condition> "AND" <condition_list>
+
+<condition> ::= <comparison> | <between_condition>
+
+<comparison> ::= <field> <comparison_operator> <value>
+
+<comparison_operator> ::= "=" | ">" | "<"
+
+<between_condition> ::= <field> "BETWEEN" <value> "AND" <value>
+
+<order_by_clause> ::= "ORDER BY" <order_list>
+
+<order_list> ::= <order_item> | <order_item> "," <order_list>
+
+<order_item> ::= <field> | <field> "ASC" | <field> "DESC"
+
+<limit_clause> ::= "LIMIT" <number>
+
+<value> ::= <string> | <number>
+
+<identifier> ::= <letter> | <letter> <identifier_rest>
+
+<identifier_rest> ::= <letter> | <digit> | "_" | <letter> <identifier_rest> | <digit> <identifier_rest> | "_" <identifier_rest>
+
+<number> ::= <digits> | <digits> "." <digits>
+
+<digits> ::= <digit> | <digit> <digits>
+
+<string> ::= "'" <string_content> "'"
+
+<string_content> ::= "" | <string_char> <string_content>
+
+<string_char> ::= <letter> | <digit> | "-"
+
+<digit> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+<letter> ::= "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z" | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
