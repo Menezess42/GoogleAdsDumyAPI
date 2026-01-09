@@ -1,6 +1,6 @@
 from typing import Any, List, Union
 
-from astNodes_SearchQuery import (
+from .astNodes_SearchQuery import (
     BetweenNode,
     ComparisonNode,
     FieldNode,
@@ -12,8 +12,8 @@ from astNodes_SearchQuery import (
     SelectNode,
     WhereNode,
 )
-from lexer_SearchQuery import Lexer
-from token_SearchQuery import Token, TokenType
+from .lexer_SearchQuery import Lexer
+from .token_SearchQuery import Token, TokenType
 
 
 class Parser:

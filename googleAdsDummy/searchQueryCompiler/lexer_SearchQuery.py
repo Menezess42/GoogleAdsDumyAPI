@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, List
 
-from token_SearchQuery import Token, TokenType
+from .token_SearchQuery import Token, TokenType
 
 
 class Lexer:
