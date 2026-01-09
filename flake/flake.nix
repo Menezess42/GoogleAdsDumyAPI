@@ -35,6 +35,7 @@
                                          p.pydantic
                                          p.pytest
                                          p.pytest-cov
+                                         p.pytest-html
                                          p.pandas
                                          ]))
                 ] ++ baseShell.buildInputs;

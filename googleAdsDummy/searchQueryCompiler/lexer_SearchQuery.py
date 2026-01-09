@@ -73,7 +73,7 @@ class Lexer:
         self.advance()
 
         string_value = ''
-        while self.current_char is not None self.current_char != "'":
+        while self.current_char is not None and self.current_char != "'":
             string_value += self.current_char
             self.advance()
 
