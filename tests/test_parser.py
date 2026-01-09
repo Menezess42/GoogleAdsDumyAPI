@@ -246,16 +246,208 @@ class TestCombinedClauses:
         assert ast.limit is not None
 
 class TesetIdentifiers:
-    ...
+    """Testes para identificadores e nomes"""
+
+    def test_identifiers_with_underscores(self):
+        """identificadores com underscores"""
+        query = "SELECT ad_group.campaign_id FROM ad_group"
+        ast = parse_query(query)
+
+        assert ast.select.fields[0].resource == "ad_group"
+        assert ast.select.fields[0].field == "campaign_id"
+        assert ast.from_clause.resource == "ad_group"
+
+    def test_identifiers_with_numbers(self):
+        """Identificadores com números"""
+        query = "SELECT resource123.field456 FROM resource123"
+        ast = parse_query(query)
+
+        assert ast.select.fields[0]
+
+        assert ast.select.fields[0].resource == "resource123"
+        assert ast.select.fields[0].field == "field456"
 
 class TestStringValues:
-    ...
+    """Testes para valores string"""
+
+    def test_string_with_spaces(self):
+        """String com espaços"""
+        query = "SELECT campaign.id FROM campaign WHERE campaign.name = 'My Campaign'"
+        ast = parse_query(query)
+
+        assert ast.where.conditions[0].value == "My Campaign"
+
+    def test_string_with_numbers(self):
+        """string com números"""
+            query = "SELECT campaign.id FROM campaign WHERE campaign.code = '12345'"
+            ast = parse_query(query)
+
+            assert ast.where.conditions[0].value == "12345"
+
+    def test_string_with_numbers(self):
+        """string com hífen"""
+        query = "SELECT campaign.id FROM campaign WHERE campaign.name = 'test-campaign'"
+        ast = parse_query(query)
+
+        assert ast.where.conditions[0].value == "test-campaign"
 
 class TestNumberValues:
-    ...
+    """Testes para valores numéricos"""
+
+    def test_integer_values(self):
+        """Valores inteiros"""
+        query = "SELECT campaign.id FROM campaign WHERE campaign.budget = 1000"
+        ast = parse_query(query)
+
+        assert ast.where.conditions[0].value == 1000
+        assert isinstance(ast.where.conditions[0].value, int)
+
+    def test_float_values(self):
+        """Valores dcimais"""
+        query = "SELECT campaign.id FROM campaign WHERE campaign.ctr = 1.5"
+        ast = parse_query(query)
+
+        assert ast.where.conditions[0].value == 1.5
+        assert isinstance(ast.where.conditions[0].value, flaot)
+
+    def test_zero_values(self):
+        """valor zero"""
+        query = "SELECT campaign.id FROM campaign WHERE campaign.cost = 0"
+        ast = parse_query(query)
+
+        assert ast.where.conditions[0].value == 0
 
 class TestErrorCases:
-    ...
+    """Testes para casos de erros que devem falhar"""
+
+    def test_missing_from(self):
+        """Query sem FROM deve falhar"""
+        query = "SELECT campaign.id"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_missing_select(self):
+        """Query sem SELECT deve falhar"""
+        query = "FROM campaign"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_missing_field_after_comma(self):
+        """Vírgula sem campo após ela deve falhar"""
+        query = "SELECT campaign.id, FROM campaign"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_missing_dot_in_field(self):
+        """Campo sem ponto (resource.field) deve falhar"""
+        query = "SELECT campaign FROM campaign"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_unterminated_string(self):
+        """String não terminada deve falhar"""
+        query = "SELECT campaign.id FROM campaign WHERE campaign.name = 'test"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_invalid_operator(self):
+        """Operador inválido deve falhar"""
+        query = "SELECT campaign.id FROM campaign WHERE campaign.budget != 1000"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_where_without_conditions(self):
+        """WHERE sem condição deve falhar"""
+        query = "SELECT campaign.id FROM campaign WHERE"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_order_by_without_field(self):
+        """ORDER BY sem campo deve falhar"""
+        query = "SELECT campaign.id FROM campaign ORDER BY"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+    
+    def test_limit_without_number(self):
+        """LIMIT sem número deve falhar"""
+        query = "SELECT campaign.id FROM campaign LIMIT"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_limit_with_float(self):
+        """LIMIT com decimal deve falhar"""
+        query = "SELECT campaign.id FROM campaign LIMIT 10.5"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_between_without_and(self):
+        """BETWEEN sem AND deve falhar"""
+        query = "SELECT campaign.id FROM campaign WHERE campaign.budget BETWEEN 1000"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_duplicate_where(self):
+        """múltiplas cláusulas WHERE devem falhar"""
+        query = "SELECT campaign.id FROM campaign WHERE campaign.status = 'ENABLED' WHERE campaign.budget > 1000"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_duplicate_order_by(self):
+        """múltiplas cláusulas ORDER BY devem falhar"""
+        query = "SELECT campaign.id FROM campaign ORDER BY campaign.name ORDER BY campaign.budget"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_duplicate_limit(self):
+        """múltiplas cláusulas LIMIT devem falhar"""
+        query = "SELECT campaign.id FROM campaign LIMIT 10 LIMIT 20"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_unexpected_token_after_query(self):
+        """Token inesperado após query completa deve falhar"""
+        query = "SELECT campaign.id FROM campaign LIMIT 10 EXTRA"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_invalid_character(self):
+        """Caractere inválido deve falhar"""
+        query = "SELECT campaign.id FROM campaign WHERE campaign.name = 'test' @ campaign.budget > 1000"
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_empty_query(self):
+        """Query vazia deve falhar"""
+        query = ""
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
+    def test_only_whitespace(self):
+        """query só com whitespace deve falhar"""
+        query = " \n\t "
+        with pytest.raises(SyntaxError):
+            parse_query(query)
+
 
 class TestCaseInsensitivity:
-    ...
+    """Testes para verificar case insensitivity das keywords"""
+
+    def test_lowercase_keywords(self):
+        """Keywords em minúsculo"""
+        query = "select campaign.id from campaign where campaign.status = 'ENABLED' order by campaign.name limit 10"
+        ast = parse_query(query)
+
+        assert ast is not None
+        assert ast.where is not None
+        assert ast.order_by is not None
+        assert ast.limit is not None
+
+    def test_mixed_case_keywords(self):
+        """Keywords em case misto"""
+        query = "SeLeCt campaign.id FrOm campaign WhErE campaign.status = 'ENABLED'"
+        ast = parse_query(query)
+
+        assert ast is not None
+        assert ast.where is not None
+
+
