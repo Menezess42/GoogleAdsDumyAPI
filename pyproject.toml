@@ -8,9 +8,9 @@ version = "0.1.0"
 description = "Dummy API to mimicate the Google Ads API"
 readme = "README.md"
 requires-python = ">=3.13"
-license = {text = "MIT"}
+license = { text = "MIT" }
 authors = [
-    {name = "Menezess42", email = "arielmenezess42@gmail.com"}
+    { name = "Menezess42", email = "arielmenezess42@gmail.com" }
 ]
 keywords = ["google-ads", "dummy", "api", "testing"]
 classifiers = [
@@ -30,33 +30,44 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=6.0.0",
 ]
 
 [project.urls]
 Homepage = "https://github.com/Menezess42/GoogleAdsDummyAPI"
 Repository = "https://github.com/Menezess42/GoogleAdsDummyAPI"
 
+# =========================
+# Packaging
+# =========================
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["googleAdsDummy"]
 
+# =========================
+# Pytest
+# =========================
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
-    "--cov=google_ads_dummy",
+    "-v",
+    "--cov=googleAdsDummy",
     "--cov-report=term-missing",
-    "--cov-report=html",
-    "-v"
+    "--cov-report=html"
 ]
 
+# =========================
+# Coverage
+# =========================
 [tool.coverage.run]
 source = ["googleAdsDummy"]
-omit = ["*/tests/*", "*/test_*.py"]
+omit = [
+    "tests/*",
+    "**/test_*.py"
+]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -64,5 +75,5 @@ exclude_lines = [
     "def __repr__",
     "raise AssertionError",
     "raise NotImplementedError",
-    "if __name__ == .__main__.:",
+    "if __name__ == '__main__':",
 ]

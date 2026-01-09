@@ -1,6 +1,6 @@
 import pytest
-from ..googleAdsDummy.searchQueryCompiler.parser_SearchQuery import parse_query 
-from ..googleAdsDummy.searchQueryCompiler.astNodes_SearchQuery import (
+from googleAdsDummy.searchQueryCompiler.parser_SearchQuery import parse_query 
+from oogleAdsDummy.searchQueryCompiler.astNodes_SearchQuery import (
         QueryNode, SelectNode, FromNode, WhereNode, OrderByNode, LimitNode, FieldNode, ComparisonNode, BetweenNode, OrderByItemNode)
 
 class TestBasicQueries:
@@ -82,7 +82,7 @@ class testWhereClause:
         ast = parse_query(query)
 
         assert len(ast.where.conditions) == 3
-        assert ast.where.conditions[0]A.value == "ENABLED"
+        assert ast.where.conditions[0].value == "ENABLED"
         assert ast.where.conditions[1].value == 1000
         assert ast.where.conditions[2].value == "SEARCH"
 
@@ -279,10 +279,10 @@ class TestStringValues:
 
     def test_string_with_numbers(self):
         """string com números"""
-            query = "SELECT campaign.id FROM campaign WHERE campaign.code = '12345'"
-            ast = parse_query(query)
+        query = "SELECT campaign.id FROM campaign WHERE campaign.code = '12345'"
+        ast = parse_query(query)
 
-            assert ast.where.conditions[0].value == "12345"
+        assert ast.where.conditions[0].value == "12345"
 
     def test_string_with_numbers(self):
         """string com hífen"""
