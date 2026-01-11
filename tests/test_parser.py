@@ -1,7 +1,7 @@
 import pytest
 from googleAdsDummy.searchQueryCompiler.parser_SearchQuery import parse_query 
 from googleAdsDummy.searchQueryCompiler.astNodes_SearchQuery import (
-        QueryNode, SelectNode, FromNode, WhereNode, OrderByNode, LimitNode, FieldNode, ComparisonNode, BetweenNode, OrderByItemNode)
+        QueryNode, ComparisonNode, BetweenNode)
 
 class TestBasicQueries:
     """Testes para queries básicas e mínimas"""
