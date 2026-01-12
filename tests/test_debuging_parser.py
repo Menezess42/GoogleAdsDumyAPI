@@ -6,9 +6,8 @@ from googleAdsDummy.searchQueryCompiler.astNodes_SearchQuery import (
 )
 from googleAdsDummy.searchQueryCompiler.parser_SearchQuery import parse_query
 
-
 # First test to fail the unity test from the test_parser.py
-def test_where_and_limit(self):
+def test_where_and_limit():
     """WHERE + LIMIT"""
     query = """
     SELECT campaign.id FROM campaign
