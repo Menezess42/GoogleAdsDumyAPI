@@ -308,7 +308,7 @@ class TestNumberValues:
         ast = parse_query(query)
 
         assert ast.where.conditions[0].value == 1.5
-        assert isinstance(ast.where.conditions[0].value, flaot)
+        assert isinstance(ast.where.conditions[0].value, float)
 
     def test_zero_values(self):
         """valor zero"""
