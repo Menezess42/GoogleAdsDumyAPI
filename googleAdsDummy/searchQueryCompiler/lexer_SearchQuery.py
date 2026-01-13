@@ -126,7 +126,7 @@ class Lexer:
                 continue
 
             if self.current_char == "'":
-                tokens.append(self.read_number())
+                tokens.append(self.read_string())
                 continue
 
             if self.current_char.isalpha() or self.current_char == '_':
