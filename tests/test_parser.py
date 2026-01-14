@@ -8,7 +8,7 @@ class TestBasicQueries:
 
     def test_minimal_query(self):
         """Query Minima: apenas SELECT e FROM"""
-        query = "SELECT campaign.id FROm campaign"
+        query = "SELECT campaign.id FROM campaign"
         ast = parse_query(query)
 
         assert isinstance(ast, QueryNode)
