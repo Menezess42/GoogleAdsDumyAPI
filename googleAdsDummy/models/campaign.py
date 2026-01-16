@@ -1,10 +1,7 @@
-from googleAdsDummy.dataModels.campaign import Campaign
+from pydantic import BaseModel
 
-
-class Campaign:
-    def __repr__(self):
-        return f"Campaign classe that provides methods to mockup data about campigns"
-
-    def configClass(self, **kwargs) -> None: ...
-
-    def generator(self): ...
+class Campaign(BaseModel):
+    id: str
+    name: str
+    status: str = "PAUSED"
+    budget_amount: float
