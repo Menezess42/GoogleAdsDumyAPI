@@ -54,7 +54,6 @@ Validation invariants:
 ---
 
 ## 3. World – Responsibilities
-
 `World` is instantiated once by `Gad.create()`.
 
 It owns:
@@ -65,10 +64,21 @@ It owns:
     - anomaly rules
     - weekend factor
     - seed
+    - profile_rules:
+      - ensure_at_least_one: ["A", "C"]
+      - allowed_profiles: ["A", "B", "C"]
+      - distribution: optional weights (e.g. A:0.2, B:0.5, C:0.3)
+
+Profile rules allows the user to indirect control the possibilities for each profile type.
 
 - Static structure:
   - campaigns
   - campaign profiles (A/B/C behavior class)
+
+Campaign profiles are internal behavioral classes assigned at world creation time.
+They define the economic nature of each campaign (efficient, average, problematic)
+and are stable for the lifetime of the world.
+They are never exposed in the public API.
 
 It exposes only structural and semantic queries, never metrics:
   - list_campaigns() → [campaign_id]
@@ -169,6 +179,9 @@ enable_anomalies: bool = True
 weekend_factor: float = 0.7
 start_date: YYYY-MM-DD
 end_date: YYYY-MM-DD
+profile_rules: [ensure_at_least_one: ["A", "C"],
+                allowed_profiles: ["A", "B", "C"]
+                distribution: [(A,0.2), (B,0.5), (C,0.3)]|[]]
 ```
 - Guarantees:
   - Same seed + same config → same world
@@ -203,5 +216,4 @@ end_date: YYYY-MM-DD
   - Tests
   - Packaging
   - Ergonomics
-
 
