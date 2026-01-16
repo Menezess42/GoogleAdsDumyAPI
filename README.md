@@ -47,15 +47,31 @@ This library provides a realistic simulation of Google Ads API responses without
 
 ## API Overview
 
-The library exposes a client interface that mirrors common Google Ads API patterns:
+The library exposes a single declarative entry point inspired by GAQL:
+```py
+gad.config(...)
+gad.create()
+gad.query("SELECT ... FROM campaign WHERE ...")
+```
 
-**Client instantiation** - Create a client instance with optional configuration
+`config()` defines the laws of the simulated universe (seed, number of campaigns, Anomaly, behavior, etc).
 
-**Campaign retrieval** - List available campaigns with metadata
+`create()` freezes this universe, making it deterministic and consistent across queries.
 
-**Metrics queries** - Fetch performance data for specific campaigns and date ranges
+`query()` does not generate data on demand -- it obeserves this pre-defined world using GAQL-like language.
 
-**Batch operations** - Retrieve metrics for multiple campaigns efficiently
+Different queries issued after the same `create()` call always observe the same universe:
+```py
+gad.query("SELECT campign.id, metrics.clicks FROM campaign")
+gad.query("SELECT campign.id, metrics.conversions FROM campaign")
+```
+
+Both queries operate over the same synthetic world, ensuring:
+- "reproducibility"
+- "Cross-query consistency"
+- "Realistic data engineering workflow"
+
+This mirrors how the real Google Ads API behaves: queries never create data, they reveal different projections of an existing system.
 
 ## Installation
 
