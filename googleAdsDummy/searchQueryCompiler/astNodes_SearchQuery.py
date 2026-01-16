@@ -51,8 +51,8 @@ class LimitNode(ASTNode):
 
 
 class QueryNode(ASTNode):
-    select: SelectNode
     from_clause: FromNode
     where: Optional[WhereNode] = None
+    select: SelectNode
     order_by: Optional[OrderByNode] = None
     limit: Optional[LimitNode] = None

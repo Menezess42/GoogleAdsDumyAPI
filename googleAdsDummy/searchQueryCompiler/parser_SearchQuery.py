@@ -189,9 +189,9 @@ class Parser:
                 )
 
         return QueryNode(
-            select=select_node,
             from_clause=from_node,
             where=where_node,
+            select=select_node,
             order_by=order_by_node,
             limit=limit_node,
         )

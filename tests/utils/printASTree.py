@@ -44,14 +44,12 @@ def print_query_tree(query, use_colors: bool = True):
         new_prefix = prefix + extension
 
         if node_name == "QueryNode":
-            print_node(node.select, new_prefix, False, "SELECT")
             print_node(
                 node.from_clause,
                 new_prefix,
                 node.where is None and node.order_by is None and node.limit is None,
                 "FROM",
             )
-
             if node.where:
                 print_node(
                     node.where,
@@ -59,6 +57,7 @@ def print_query_tree(query, use_colors: bool = True):
                     node.order_by is None and node.limit is None,
                     "WHERE",
                 )
+            print_node(node.select, new_prefix, False, "SELECT")
             if node.order_by:
                 print_node(node.order_by, new_prefix, node.limit is None, "ORDER BY")
             if node.limit:
