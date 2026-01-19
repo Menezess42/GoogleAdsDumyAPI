@@ -4,216 +4,240 @@ Purpose: deterministic mock of Google Ads–like data for study and tooling.
 
 ---
 
-## 1. Core Concepts
-The system has four active layers:
+## 1. System Topology
+
 ```
-Gad (API facade)
- ├─ World (state + business rules + entities)
- │    └─ owns Campaigns and temporal boundaries
- ├─ Executor (query interpreter)
- │    └─ translates AST → world interactions
- └─ Generator (metric fabricator)
-      └─ produces reproducible metrics from (world + date + entity)
+Gad (public API)
+ ├─ World (domain state)
+ │    └─ owns campaigns, profiles, date boundaries, rules
+ ├─ Executor (query engine)
+ │    └─ AST → world lookups → generator calls → result shaping
+ └─ Generator (stateless fabricator)
+      └─ (world, campaign_id, date) → CampaignMetrics
 ```
-The compiler already exists and is isolated.
 
-Only `Gad` is visible to the user.
 
----
-## 2. Entities
-- Campaign (static)
-- id: str
-- name: str
-- status: str (ENABLED | PAUSED | REMOVED)
-- budget_amount: float
-
-CampaignMetrics (temporal)
-- campaign_id: str
-- date: YYYY-MM-DD
-
-Raw:
-- impressions: int
-- clicks: int
-- cost: float
-- conversions: int
-- revenue: float
-
-Derived:
-- cpa: float
-- roas: float
-
-Validation invariants:
-- impressions >= 0
-- clicks <= impressions
-- conversions <= clicks
-- cost >= 0
-- revenue >= 0
-- cpa = cost / conversions (0 if conversions = 0)
-- roas = revenue / cost (0 if cost = 0)
+- Compiler already exists and is isolated.
+- Only `Gad` is visible to the user.
 
 ---
 
-## 3. World – Responsibilities
-`World` is instantiated once by `Gad.create()`.
+## 2. Domain Entities
 
-It owns:
+### Campaign (static, created by World)
 
-- Configuration snapshot:
-    - num_campaigns
-    - date range
-    - anomaly rules
-    - weekend factor
-    - seed
-    - profile_rules:
-      - ensure_at_least_one: ["A", "C"]
-      - allowed_profiles: ["A", "B", "C"]
-      - distribution: optional weights (e.g. A:0.2, B:0.5, C:0.3)
+```py
+id: str
+name: str
+status: str # ENABLED | PAUSED | REMOVED
+budget_amount: float
+```
 
-Profile rules allows the user to indirect control the possibilities for each profile type.
+### CampaignMetrics (temporal, produced by Generator)
+```py
+campaign_id: str
+date: YYYY-MM-DD
 
-- Static structure:
-  - campaigns
-  - campaign profiles (A/B/C behavior class)
+impressions: int
+clicks: int
+cost: float
+conversions: int
+revenue: float
 
-Campaign profiles are internal behavioral classes assigned at world creation time.
-They define the economic nature of each campaign (efficient, average, problematic)
-and are stable for the lifetime of the world.
-They are never exposed in the public API.
+cpa: float # derived
+roas: float # derived
+```
 
-It exposes only structural and semantic queries, never metrics:
-  - list_campaigns() → [campaign_id]
-  - campaign_exists(id) → bool
-  - get_campaign(id) → Campaign
-  - is_date_valid(date) → bool
-  - get_rules_snapshot() → Rules
-
-World does not generate metrics.
-World defines what exists and what is allowed.
-
-World is pure domain state.
+### Validation Invariants
+```py
+impressions >= 0
+clicks <= impressions
+conversions <= clicks
+cost >= 0
+revenue >= 0
+cpa = cost / conversions (0 if conversions = 0)
+roas = revenue / cost (0 if cost = 0)
+```
 
 ---
 
-## 4. Generator – Responsibilities
+## 3. User Configuration Contract (gad.config)
+
+All of this is user input.
+
+```py
+seed: int | None
+num_campaigns: int
+start_date: YYYY-MM-DD
+end_date: YYYY-MM-DD
+weekend_factor: float # 0.0 – 1.0
+
+anomaly_rules: {
+"enabled": bool,
+"probability": float, # 0.0 – 1.0
+"effects": {
+"spike_conversions": float, # e.g. +0.50
+"drop_conversions": float # e.g. -0.40
+}
+}
+
+profile_rules: {
+"allowed_profiles": list[str], # ["A", "B", "C"]
+"ensure_at_least_one": list[str], # ["A", "C"]
+"distribution": dict[str, float] | None
+# e.g. {"A": 0.2, "B": 0.5, "C": 0.3}
+}
+```
+
+Guarantees:
+```
+same seed + same config → same world
+same world + same query → same result
+```
+
+---
+
+## 4. World – Domain State
+
+World is instantiated once by `Gad.create(config)`.
+
+World stores verbatim:
+```
+seed
+num_campaigns
+date_range
+weekend_factor
+anomaly_rules
+profile_rules
+```
+
+World resolves at creation time:
+
+```py
+campaigns: dict[campaign_id, Campaign]
+campaign_profiles: dict[campaign_id, ProfileType] # "A" | "B" | "C"
+```
+
+Profile resolution rules:
+- Only values in `allowed_profiles` may be used.
+- For each value in `ensure_at_least_one`, at least one campaign must receive it.
+- Remaining campaigns are assigned using `distribution`
+  (or uniform if None).
+
+World exposes only structure and validity:
+```py
+list_campaigns() -> list[str]
+campaign_exists(id) -> bool
+get_campaign(id) -> Campaign
+is_date_valid(date) -> bool
+get_rules_snapshot() -> Rules
+```
+
+World never generates metrics.
+
+---
+
+## 5. Generator – Metric Fabricator
+
 Generator is stateless.
 
-- Inputs:
-    -  world snapshot
-    -  campaign_id
-    -  date
+Input:
+```py
+(world, campaign_id, date)
+```
 
-- Output:
-    - CampaignMetrics
+Output:
+```py
+CampaignMetrics
+```
 
-- Rules:
-    - Same (seed, campaign_id, date) → same output
-    - Uses hash-based reseeding per (campaign_id, date, seed)
+Rules:
+```py
+same (seed, campaign_id, date) → same output
+```
 
-    - Applies:
-      - weekday vs weekend factor
-      - controlled random variation
-      - anomaly probability
-      - campaign profile behavior
+Mechanics:
+- reseed using hash(seed, campaign_id, date)
+- apply:
+  - weekday vs weekend factor
+  - controlled random variation
+  - anomaly_rules
+  - campaign profile behavior
 
-Generator knows nothing about queries or AST.
+Generator knows nothing about AST or queries.
 
 ---
 
-## 5. Executor – Responsibilities
+## 6. Executor – Query Engine
+
 Executor bridges:
 ```
-AST (from compiler) → World → Generator → Result
+AST → World → Generator → Result
 ```
-Executor:
-1. Receives:
-    - world instance
-    - parsed AST
 
-2. Validates:
-    - entities exist in world
-    - dates are valid
-
-3. Determines:
-    - which campaigns
-    - which date ranges
-    - which metrics are requested
-
-4. Requests metrics from Generator
-
-5. Shapes result to match query semantics
-
-6. Returns structured data to Gad
+Executor responsibilities:
+1. Receive `(world, ast)`
+2. Validate:
+   - entities exist in world
+   - dates are valid
+3. Resolve:
+   - which campaigns
+   - which dates
+   - which metrics
+4. Request metrics from Generator
+5. Shape output according to query semantics
+6. Return structured result
 
 Executor owns query semantics, not business rules.
 
 ---
 
-## 6. Gad – Responsibilities
-Public API.
+## 7. Gad – Public API
 
 Lifecycle:
-```py
+```Py
 gad = Gad()
 gad.config(...)
 gad.create()
 gad.query("SELECT ...")
 ```
-- Gad:
-    - Stores configuration
-    - Instantiates World on create()
-    - On query():
-      - calls compiler → AST
-      - passes (world, AST) to Executor
-      - returns result
 
-Gad never touches Generator directly.
+Responsibilities:
+- store configuration
+- instantiate World on `create()`
+- on `query()`:
+  - parse → AST
+  - call Executor(world, AST)
+  - return result
 
----
-
-## 7. Configuration Contract
-
-```py
-seed: int | None
-num_campaigns: int = 3
-enable_anomalies: bool = True
-weekend_factor: float = 0.7
-start_date: YYYY-MM-DD
-end_date: YYYY-MM-DD
-profile_rules: [ensure_at_least_one: ["A", "C"],
-                allowed_profiles: ["A", "B", "C"]
-                distribution: [(A,0.2), (B,0.5), (C,0.3)]|[]]
-```
-- Guarantees:
-  - Same seed + same config → same world
-  - Same seed + same world + same query → same result
-  - Metrics always coherent
+Gad never calls Generator directly.
 
 ---
 
 ## 8. Order of Implementation
+
 1. World
-  - Define structure
-  - Create campaigns deterministically
-  - Enforce domain rules
-  - No metrics
+   - configuration ingestion
+   - campaign creation
+   - profile assignment
+   - domain validation
 
 2. Generator
-  - Deterministic numeric fabricator
-  - Campaign profile behavior
-  - Date-based seeding
+   - deterministic numeric engine
+   - profile behavior
+   - anomaly handling
 
 3. Executor
-  - Consume AST
-  - Validate against World
-  - Orchestrate metric generation
+   - AST interpretation
+   - world validation
+   - metric orchestration
 
 4. Gad
-  - Config lifecycle
-  - World instantiation
-  - Compiler + Executor wiring
+   - lifecycle
+   - wiring
+   - public API
 
-- Only after these four are stable:
-  - Tests
-  - Packaging
-  - Ergonomics
-
+Only after these are stable:
+- tests
+- packaging
+- ergonomics
