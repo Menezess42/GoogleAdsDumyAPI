@@ -1,20 +1,18 @@
 from datetime import date
 
 from pydantic import BaseModel, Field, model_validator
+from typing_extensions import Annotated
 
 
 class Anomaly_effects(BaseModel):
-    spike_conversions: float
-    drop_conversions: float
+    spike_conversions: float = Field(ge=0.0, le=1.0)
+    drop_conversions: float = Field(ge=0.0, le=1.0)
 
     @model_validator(mode="before")
     @classmethod
     def accept_tuple(cls, v):
         if isinstance(v, tuple):
-            return {
-                "spike_conversions": v[0],
-                "drop_conversions": v[1]
-            }
+            return {"spike_conversions": v[0], "drop_conversions": v[1]}
         return v
 
 
@@ -32,20 +30,53 @@ class Anomaly_rules(BaseModel):
 
 
 class Profile_rules(BaseModel):
-    allow_profiles: list[str]
-    ensure_at_least_one: list[str]
-    distribution: dict[str, float] | None = None
+    allow_profiles: set[str] = Field(min_length=1)
+    ensure_at_least_one: set[str] | None = None
+    distribution: dict[str, Annotated[float, Field(ge=0.0, le=1.0)]] | None = Field(
+        default=None, min_length=1
+    )
+
     @model_validator(mode="before")
     @classmethod
     def accept_list(cls, v):
         if isinstance(v, list):
+            if v[1] == []:
+                v[1] = None
             return {
                 "allow_profiles": v[0],
                 "ensure_at_least_one": v[1],
-                "distribution": v[2]
+                "distribution": v[2] if len(v) > 2 else None,
             }
         return v
 
+    @model_validator(mode="before")
+    @classmethod
+    def validate_values(cls, v):
+        allow_profiles, ensure_at_least_one, distribution = v
+
+        allow_profiles = {x.upper() for x in allow_profiles}
+
+        ensure_at_least_one = (
+            {x.upper() for x in ensure_at_least_one} if ensure_at_least_one else None
+        )
+
+        distribution = (
+            {k.upper(): v for k, v in distribution.items()} if distribution else None
+        )
+
+        if ensure_at_least_one and not ensure_at_least_one.issubset(allow_profiles):
+            raise ValueError(
+                "ensure_at_least_one contains values that are not present in allow_profile"
+            )
+
+        if distribution and not set(distribution).issubset(allow_profiles):
+            raise ValueError("distribution contains keys not present in allow_profiles")
+
+        return {
+            "allow_profiles": allow_profiles,
+            "ensure_at_least_one": ensure_at_least_one,
+            "distribution": distribution,
+        }
 
 
 class Date_period(BaseModel):
@@ -58,3 +89,9 @@ class Date_period(BaseModel):
         if isinstance(v, tuple):
             return {"start_date": v[0], "end_date": v[1]}
         return v
+
+    @model_validator(mode="after")
+    def mustBe_greaterThan_startDate(self):
+        if self.start_date >= self.end_date:
+            raise ValueError("start_date should be less than end_date")
+        return self

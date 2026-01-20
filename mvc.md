@@ -68,16 +68,19 @@ All of this is user input.
 ```py
 seed: int | None
 num_campaigns: int
-start_date: YYYY-MM-DD
-end_date: YYYY-MM-DD
 weekend_factor: float # 0.0 – 1.0
+
+date_period: {
+"start_date": YYYY-MM-DD,
+"end_date": YYYY-MM-DD
+}
 
 anomaly_rules: {
 "enabled": bool,
 "probability": float, # 0.0 – 1.0
 "effects": {
-"spike_conversions": float, # e.g. +0.50
-"drop_conversions": float # e.g. -0.40
+"spike_conversions": float, # e.g. +0.50 -- 0.0 - 1.0
+"drop_conversions": float # e.g. -0.40 -- 0.0 - 1
 }
 }
 
