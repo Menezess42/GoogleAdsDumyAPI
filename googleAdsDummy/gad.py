@@ -14,14 +14,14 @@ class Gad:
         profile_rules: Profile_rules
     ) -> None:
 
-        if seed and (not isinstance(seed, int) or seed < 0):
-            raise ValueError("Seed should be an integer and more than 0")
-        if not isinstance(num_campaigns, int) or num_campaigns < 1:
-            raise ValueError("num_campaigns should be int and should be more than 1")
-        if not isinstance(weekend_factor, float) or (
-            weekend_factor < 0.0 or weekend_factor > 1.0
-        ):
-            raise ValueError("weekend_factor should be float in the range between [0, 1]")
+        if seed is not None and seed < 1:
+            raise ValueError("Seed should be an integer greater than or equal to 1")
+
+        if num_campaigns < 1:
+            raise ValueError("num_campaigns should be an integer greater than or equal to 1")
+
+        if not (0.0 <= weekend_factor <= 1.0):
+            raise ValueError("weekend_factor should be a float in the range [0, 1]")
 
         if not seed:
             seed = 42
