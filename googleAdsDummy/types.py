@@ -2,6 +2,7 @@ from datetime import date
 
 from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Annotated
+from typing import Dict
 
 
 class Anomaly_effects(BaseModel):
@@ -69,8 +70,16 @@ class Profile_rules(BaseModel):
                 "ensure_at_least_one contains values that are not present in allow_profile"
             )
 
-        if distribution and not set(distribution).issubset(allow_profiles):
-            raise ValueError("distribution contains keys not present in allow_profiles")
+        if distribution:
+            if not set(distribution).issubset(allow_profiles):
+                raise ValueError(
+                    "distribution contains keys not present in allow_profiles"
+                )
+
+            if sum(distribution.values()) > 1.0:
+                raise ValueError(
+                    "distribution has poorly distributed values. The sum of all the values surpasses 1.0"
+                )
 
         return {
             "allow_profiles": allow_profiles,
@@ -95,3 +104,13 @@ class Date_period(BaseModel):
         if self.start_date >= self.end_date:
             raise ValueError("start_date should be less than end_date")
         return self
+
+class WorldRulesSnapshot(BaseModel):
+    seed: int
+    num_campaigns: int
+    weekend_factor: float
+    date_period: Date_period
+    anomaly_rules: Anomaly_rules
+    profile_rules: Profile_rules
+
+    campaign_profiles: Dict[str, str]
