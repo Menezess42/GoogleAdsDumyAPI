@@ -1,6 +1,7 @@
 from pydantic import validate_call, StrictFloat, StrictInt
 
 from googleAdsDummy.types import Anomaly_rules, Date_period, Profile_rules
+from googleAdsDummy.engine.world import World
 
 class Gad:
     @validate_call
@@ -33,8 +34,15 @@ class Gad:
         self.anomaly_rules = anomaly_rules
         self.profile_rules = profile_rules
 
-    def create(self): ...
-    def query(self): ...
+    def create(self):
+        self.world = World(self.seed,
+                           self.num_campaigns,
+                           self.weekend_factor,
+                           self.date_period,
+                           self.anomaly_rules,
+                           self.profile_rules)
+
+    def query(self, searchQuery: str): ...
 
 
 if __name__ == "__main__":
@@ -45,5 +53,5 @@ if __name__ == "__main__":
         weekend_factor=0.5,
         date_period=("2024-01-01", "2025-05-01"),
         anomaly_rules=[True, 0.5, (0.5, 0.2)],
-        profile_rules=[["A", "B", "C", "A"], ["A"], {"A": 0.1, "B": 0.3}]
+        profile_rules=[["A", "B", "C"], ["A"], {"A": 0.1, "B": 0.3}]
     )
