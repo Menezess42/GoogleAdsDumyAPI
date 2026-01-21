@@ -108,8 +108,8 @@ World stores verbatim:
 ```
 seed
 num_campaigns
-date_range
 weekend_factor
+date_period
 anomaly_rules
 profile_rules
 ```
