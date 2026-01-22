@@ -1,4 +1,3 @@
-from pprint import pprint
 from typing import get_args
 
 from pydantic import StrictFloat, StrictInt
@@ -42,8 +41,6 @@ class World:
     def _create_campaigns(self):
         self.campaigns = generate_campaign(self.seed, self.num_campaigns)
 
-        pprint(self.campaigns)
-
     def __repr__(self): ...  # Last thing  to be done
 
     def list_campaigns(self) -> list[Campaign]: ...
@@ -54,13 +51,7 @@ class World:
 
     def is_date_valid(self, date) -> bool: ...
 
-    def get_rules_snapshot(self) -> WorldRulesSnapshot:
-        pprint(f"seed={self.seed}")
-        pprint(f"num_campaigns={self.num_campaigns}")
-        pprint(f"weekend_factor={self.weekend_factor}")
-        pprint(self.date_period)
-        pprint(self.anomaly_rules)
-        pprint(self.profile_rules)
+    def get_rules_snapshot(self) -> WorldRulesSnapshot:...
 
 
 

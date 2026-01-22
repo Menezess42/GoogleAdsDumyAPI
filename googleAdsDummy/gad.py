@@ -49,7 +49,7 @@ if __name__ == "__main__":
     gad = Gad()
     gad.config(
         seed=42,
-        num_campaigns=3,
+        num_campaigns=5,
         weekend_factor=0.5,
         date_period=("2024-01-01", "2025-05-01"),
         anomaly_rules=[True, 0.5, (0.5, 0.2)],
