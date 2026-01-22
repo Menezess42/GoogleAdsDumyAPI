@@ -29,7 +29,6 @@ Gad (public API)
 ```py
 id: str
 name: str
-status: str # ENABLED | PAUSED | REMOVED
 budget_amount: float
 ```
 
