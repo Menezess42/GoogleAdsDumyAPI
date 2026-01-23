@@ -37,8 +37,7 @@ class Gad:
     def create(self):
         self.world = World(self.seed,
                            self.num_campaigns,
-                           self.weekend_factor,
-                           self.date_period,
+                           self.weekend_factor, self.date_period,
                            self.anomaly_rules,
                            self.profile_rules)
 
@@ -49,9 +48,14 @@ if __name__ == "__main__":
     gad = Gad()
     gad.config(
         seed=42,
-        num_campaigns=5,
+        num_campaigns=3,
         weekend_factor=0.5,
         date_period=("2024-01-01", "2025-05-01"),
         anomaly_rules=[True, 0.5, (0.5, 0.2)],
-        profile_rules=[["A", "B", "C"], ["A"], {"A": 0.1, "B": 0.3}]
+        profile_rules=[["A", "B", "C"], ["A"], {"A": 0.25, "B": 0.50}]
     )
+    gad.create()
+
+
+
+
