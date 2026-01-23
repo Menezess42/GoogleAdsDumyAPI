@@ -87,6 +87,8 @@ class Profile_rules(BaseModel):
             "distribution": distribution,
         }
 
+    def __iter__(self):
+        yield from self.model_dump().values()
 
 class Date_period(BaseModel):
     start_date: date
@@ -112,5 +114,4 @@ class WorldRulesSnapshot(BaseModel):
     date_period: Date_period
     anomaly_rules: Anomaly_rules
     profile_rules: Profile_rules
-
     campaign_profiles: Dict[str, str]
