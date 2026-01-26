@@ -2,6 +2,8 @@ from pydantic import StrictFloat, StrictInt, validate_call
 
 from googleAdsDummy.engine.world import World
 from googleAdsDummy.types import Anomaly_rules, Date_period, Profile_rules
+from googleAdsDummy.searchQueryCompiler.parser_SearchQuery import parse_query
+from googleAdsDummy.query.executor import Executor
 
 
 class Gad:
@@ -47,7 +49,14 @@ class Gad:
             self.profile_rules,
         )
 
-    def query(self, searchQuery: str): ...
+    def query(self, searchQuery: str) -> dict:
+        ast = parse_query(searchQuery)
+        ast = ast.model_dump(exclude_none=True)
+
+        executor = Executor()
+        result = executor.consultData(world=self.world, ast=ast)
+
+        return result
 
 
 if __name__ == "__main__":
@@ -61,5 +70,4 @@ if __name__ == "__main__":
         profile_rules=[["A", "B", "C"], ["A"], {"A": 0.25, "B": 0.50}],
     )
     gad.create()
-    campaign_lists = gad.world.list_campaigns()
-    print(campaign_lists[0])
+    gad.query("SELECT campaign.id FROM campaign")
