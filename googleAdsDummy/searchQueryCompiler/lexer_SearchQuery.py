@@ -11,25 +11,25 @@ class Lexer:
         self.current_char = self.text[0] if text else None
 
         self.keywords = {
-                "SELECT": TokenType.SELECT,
-                "FROM": TokenType.FROM,
-                "WHERE": TokenType.WHERE,
-                "AND": TokenType.AND,
-                "BETWEEN": TokenType.BETWEEN,
-                "ASC": TokenType.ASC,
-                "DESC": TokenType.DESC,
-                "LIMIT": TokenType.LIMIT,
-                }
+            "SELECT": TokenType.SELECT,
+            "FROM": TokenType.FROM,
+            "WHERE": TokenType.WHERE,
+            "AND": TokenType.AND,
+            "BETWEEN": TokenType.BETWEEN,
+            "ASC": TokenType.ASC,
+            "DESC": TokenType.DESC,
+            "LIMIT": TokenType.LIMIT,
+        }
 
         self.punctuation = {
-                ".": TokenType.DOT,
-                ",": TokenType.COMMA,
-                "=": TokenType.EQUAL,
-                ">": TokenType.GREATER,
-                "<": TokenType.LESS,
-                "-": TokenType.DASH,
-                "'": TokenType.APOSTROPHE,
-                }
+            ".": TokenType.DOT,
+            ",": TokenType.COMMA,
+            "=": TokenType.EQUAL,
+            ">": TokenType.GREATER,
+            "<": TokenType.LESS,
+            "-": TokenType.DASH,
+            "'": TokenType.APOSTROPHE,
+        }
 
     def advance(self):
         self.pos += 1
@@ -45,18 +45,18 @@ class Lexer:
         return self.text[peek_pos]
 
     def skip_whitespace(self):
-        while self.current_char is not None and self.current_char in ' \t\n\r':
+        while self.current_char is not None and self.current_char in " \t\n\r":
             self.advance()
 
     def read_number(self):
         start_pos = self.pos
-        num_str = ''
+        num_str = ""
 
         while self.current_char is not None and self.current_char.isdigit():
             num_str += self.current_char
             self.advance()
 
-        if self.current_char == '.':
+        if self.current_char == ".":
             num_str += self.current_char
             self.advance()
 
@@ -72,7 +72,7 @@ class Lexer:
         start_pos = self.pos
         self.advance()
 
-        string_value = ''
+        string_value = ""
         while self.current_char is not None and self.current_char != "'":
             string_value += self.current_char
             self.advance()
@@ -85,27 +85,31 @@ class Lexer:
 
     def read_identifier(self):
         start_pos = self.pos
-        identifier = ''
+        identifier = ""
 
-        while self.current_char is not None and (self.current_char.isalnum() or self.current_char == '_'):
+        while self.current_char is not None and (
+            self.current_char.isalnum() or self.current_char == "_"
+        ):
             identifier += self.current_char
             self.advance()
 
-        if identifier.upper() == 'ORDER':
+        if identifier.upper() == "ORDER":
             saved_pos = self.pos
             self.skip_whitespace()
 
             if self.current_char is not None and self.current_char.isalpha():
-                next_word = ''
+                next_word = ""
                 while self.current_char is not None and self.current_char.isalpha():
                     next_word += self.current_char
                     self.advance()
 
-                if next_word.upper() == 'BY':
-                    return Token(TokenType.ORDER_BY, 'ORDER_BY', start_pos)
+                if next_word.upper() == "BY":
+                    return Token(TokenType.ORDER_BY, "ORDER_BY", start_pos)
                 else:
                     self.pos = saved_pos
-                    self.current_char = self.text[self.pos] if self.pos < len(self.text) else None
+                    self.current_char = (
+                        self.text[self.pos] if self.pos < len(self.text) else None
+                    )
 
         upper_identifier = identifier.upper()
         if upper_identifier in self.keywords:
@@ -115,12 +119,12 @@ class Lexer:
 
     def tokenizer(self) -> List[Token]:
         tokens = []
-        
+
         while self.current_char is not None:
-            if self.current_char in ' \t\n\r':
+            if self.current_char in " \t\n\r":
                 self.skip_whitespace()
                 continue
-            
+
             if self.current_char.isdigit():
                 tokens.append(self.read_number())
                 continue
@@ -129,20 +133,22 @@ class Lexer:
                 tokens.append(self.read_string())
                 continue
 
-            if self.current_char.isalpha() or self.current_char == '_':
+            if self.current_char.isalpha() or self.current_char == "_":
                 tokens.append(self.read_identifier())
                 continue
-            
+
             if self.current_char in self.punctuation:
-                tokens.append(Token(
-                    self.punctuation[self.current_char],
-                    self.current_char,
-                    self.pos
-                    ))
+                tokens.append(
+                    Token(
+                        self.punctuation[self.current_char], self.current_char, self.pos
+                    )
+                )
                 self.advance()
                 continue
 
-            raise SyntaxError(f"Unexpected character '{self.current_char}' at position {self.pos}")
+            raise SyntaxError(
+                f"Unexpected character '{self.current_char}' at position {self.pos}"
+            )
 
         tokens.append(Token(TokenType.EOF, None, self.pos))
         return tokens
