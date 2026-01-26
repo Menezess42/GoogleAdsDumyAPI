@@ -1,6 +1,7 @@
 # lexer_searchQuery.py
-from typing import List, Any
 from enum import Enum
+from typing import Any, List
+
 
 class TokenType(Enum):
     # Keyword
@@ -30,6 +31,7 @@ class TokenType(Enum):
 
     # Special
     EOF = "EOF"
+
 
 class Token:
     def __init__(self, type: TokenType, value: Any, position: int):
