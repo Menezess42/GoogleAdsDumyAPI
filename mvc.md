@@ -41,10 +41,8 @@ impressions: int
 clicks: int
 cost: float
 conversions: int
-revenue: float
 
 cpa: float # derived
-roas: float # derived
 ```
 
 ### Validation Invariants
@@ -243,3 +241,69 @@ Only after these are stable:
 - tests
 - packaging
 - ergonomics
+
+---
+# 9. Query Handling
+
+## Level 0 Queries
+
+Level 0 queries operate exclusively over **static domain entities**.  
+They do not involve time, metrics generation, aggregation, or any form of temporal interpretation.
+
+They are evaluated directly over the data created by the `World` and are therefore:
+- Deterministic
+- Stateless
+- Side-effect free
+
+### What Level 0 Queries Can Access
+- `campaign.id`
+- `campaign.name`
+- `campaign.budget_amount`
+
+### Supported Query Types
+
+- Full listing  
+  `select * from campaign`
+
+- Field projection  
+  `select campaign.id from campaign`  
+  `select campaign.id, campaign.name from campaign`
+
+- Equality filters  
+  `where campaign.id = ...`  
+  `where campaign.name = ...`  
+  `where campaign.budget_amount = ...`
+
+- Numeric comparisons  
+  `where campaign.budget_amount > ...`  
+  `where campaign.budget_amount >= ...`  
+  `where campaign.budget_amount < ...`
+
+- Set membership  
+  `where campaign.id in (...)`  
+  `where campaign.name in (...)`
+
+- Ordering  
+  `order by campaign.name`  
+  `order by campaign.budget_amount desc`
+
+- Result limiting  
+  `limit N`
+
+- Combined clauses  
+  Filters, ordering, and limits may be combined in a single query.
+
+### Explicitly Out of Scope for Level 0
+
+- Any reference to `metrics`
+- Any reference to dates or time ranges
+- Aggregations (`sum`, `avg`, `count`, etc.)
+- Derived fields
+- Cross-entity relations or joins
+
+Level 0 defines the **minimal and stable query surface** of the gadAPI.  
+More expressive queries are intentionally deferred to higher levels.
+
+
+
+
