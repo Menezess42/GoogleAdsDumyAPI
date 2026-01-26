@@ -1,8 +1,10 @@
 from datetime import date
+from typing import Dict
 
 from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Annotated
-from typing import Dict
+
+from googleAdsDummy.models.profiles import ProfileType
 
 
 class Anomaly_effects(BaseModel):
@@ -90,6 +92,7 @@ class Profile_rules(BaseModel):
     def __iter__(self):
         yield from self.model_dump().values()
 
+
 class Date_period(BaseModel):
     start_date: date
     end_date: date
@@ -107,6 +110,7 @@ class Date_period(BaseModel):
             raise ValueError("start_date should be less than end_date")
         return self
 
+
 class WorldRulesSnapshot(BaseModel):
     seed: int
     num_campaigns: int
@@ -114,4 +118,4 @@ class WorldRulesSnapshot(BaseModel):
     date_period: Date_period
     anomaly_rules: Anomaly_rules
     profile_rules: Profile_rules
-    campaign_profiles: Dict[str, str]
+    campaign_profiles: Dict[str, ProfileType]
