@@ -262,48 +262,46 @@ They are evaluated directly over the data created by the `World` and are therefo
 
 ### Supported Query Types
 
-- Full listing  
-  `select * from campaign`
-
-- Field projection  
+- Field projection (explicit fields only)  
   `select campaign.id from campaign`  
-  `select campaign.id, campaign.name from campaign`
+  `select campaign.id, campaign.name from campaign`  
+  `select campaign.id, campaign.name, campaign.budget_amount from campaign`
 
 - Equality filters  
-  `where campaign.id = ...`  
-  `where campaign.name = ...`  
-  `where campaign.budget_amount = ...`
+  `where campaign.id = '...'`  
+  `where campaign.name = '...'`  
+  `where campaign.budget_amount = 1000`
 
 - Numeric comparisons  
-  `where campaign.budget_amount > ...`  
-  `where campaign.budget_amount >= ...`  
-  `where campaign.budget_amount < ...`
+  `where campaign.budget_amount > 500`  
+  `where campaign.budget_amount < 5000`
 
-- Set membership  
-  `where campaign.id in (...)`  
-  `where campaign.name in (...)`
+- Range filtering  
+  `where campaign.budget_amount between 100 and 5000`
+
+- Multiple conditions (AND only)  
+  `where campaign.budget_amount > 500 and campaign.budget_amount < 5000`
 
 - Ordering  
   `order by campaign.name`  
-  `order by campaign.budget_amount desc`
+  `order by campaign.budget_amount desc`  
+  `order by campaign.name, campaign.budget_amount desc`
 
 - Result limiting  
-  `limit N`
+  `limit 10`
 
 - Combined clauses  
-  Filters, ordering, and limits may be combined in a single query.
+  `where`, `order by`, and `limit` may be combined in a single query.
 
 ### Explicitly Out of Scope for Level 0
 
+- Wildcards (`select *`)
 - Any reference to `metrics`
 - Any reference to dates or time ranges
 - Aggregations (`sum`, `avg`, `count`, etc.)
-- Derived fields
+- Set membership (`in`)
+- Logical OR
+- Derived or computed fields
 - Cross-entity relations or joins
 
-Level 0 defines the **minimal and stable query surface** of the gadAPI.  
-More expressive queries are intentionally deferred to higher levels.
-
-
-
-
+Level 0 defines the minimal and stable query surface of the gadAPI, aligned with a constrained GAQL-like grammar.
