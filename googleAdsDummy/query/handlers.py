@@ -8,8 +8,8 @@ allow_operators = SEARCH_QUERY_SCHEMA["operators"]
 allow_clauses = SEARCH_QUERY_SCHEMA["clauses"]
 
 handlers_dictDispatch = {
-    "from_clause": lambda dictValue: handle_from(dictValue),
     "where": lambda dictValue: handle_where(dictValue),
+    "from_clause": lambda dictValue: handle_from(dictValue),
     "select": lambda dictValue: handle_select(dictValue),
 }
 
@@ -21,22 +21,35 @@ def handle_from(dictValue):
 
 
 def handle_where(dictValue):
-    conditions = list(dictValue['conditions'])
-    print(conditions)
+    conditions = list(dictValue["conditions"])
     # Verify the fields
-        # verify the resources from the fields
-        # verify the identifiers from the fields
+    for value in conditions:
+        print(value)
+
+        # verify the resources from the fields [X]
+        # verify the identifiers from the fields [X]
+        verify_field(value['field'])
     # Verify the operators
-    # verify the values in relation to the operator
-        # If operator between
-            # Verify if upper limit is greater than lower
-            # Verify if identifier is applicable to between operator
-        # If comparison
-            # Verify if identifier is aplicable to the operator
+        # verify the values in relation to the operator
+    # If operator between
+    # Verify if upper limit is greater than lower
+    # Verify if identifier is applicable to between operator
+    # If comparison
+    # Verify if identifier is aplicable to the operator
+
+def verify_field(field):
+    if field["resource"] not in allow_resources:
+        raise ValueError(
+            f"Unexpected column {field['resource']} in WHERE clause"
+        )
+    resource = field["resource"]
+    if field["field"] not in allow_resources[resource]["fields"]:
+        raise ValueError(
+            f"Unexpected field {field['field']} in WHERE clause"
+        )
 
 
-def handle_select(dictValue):
-    ...
+def handle_select(dictValue): ...
 
 
 def handle_identifiers(identifier: dict) -> List[str]:
@@ -69,4 +82,3 @@ def check_lower_upper(
             raise ValueError(f"BETWEEN clause invalid limit: <{lower}|{upper}>")
 
     return [lower, upper, type(lower).__name__]
-
