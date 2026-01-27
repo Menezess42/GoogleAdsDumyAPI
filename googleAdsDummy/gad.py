@@ -1,9 +1,9 @@
 from pydantic import StrictFloat, StrictInt, validate_call
 
 from googleAdsDummy.engine.world import World
-from googleAdsDummy.types import Anomaly_rules, Date_period, Profile_rules
-from googleAdsDummy.searchQueryCompiler.parser_SearchQuery import parse_query
 from googleAdsDummy.query.executor import Executor
+from googleAdsDummy.searchQueryCompiler.parser_SearchQuery import parse_query
+from googleAdsDummy.types import Anomaly_rules, Date_period, Profile_rules
 
 
 class Gad:
@@ -70,4 +70,8 @@ if __name__ == "__main__":
         profile_rules=[["A", "B", "C"], ["A"], {"A": 0.25, "B": 0.50}],
     )
     gad.create()
-    gad.query("SELECT campaign.id, campaign.budget_amount FROM campaign WHERE campaign.budget_amount > 50 AND campaign.budget_amount BETWEEN  10 AND 20")
+    gad.query(
+        """SELECT campaign.id, campaign.budget_amount FROM
+        campaign WHERE campaign.budget_amount > 50 AND
+        campaign.budget_amount BETWEEN  10 AND 20"""
+    )
