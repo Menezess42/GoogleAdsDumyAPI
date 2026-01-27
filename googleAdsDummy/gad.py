@@ -70,4 +70,4 @@ if __name__ == "__main__":
         profile_rules=[["A", "B", "C"], ["A"], {"A": 0.25, "B": 0.50}],
     )
     gad.create()
-    gad.query("SELECT campaign.id FROM campaign")
+    gad.query("SELECT campaign.id, campaign.budget_amount FROM campaign WHERE campaign.budget_amount > 50 AND campaign.budget_amount BETWEEN  10 AND 20")
