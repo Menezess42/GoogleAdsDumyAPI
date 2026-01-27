@@ -22,20 +22,17 @@ def handle_from(dictValue):
 
 def handle_where(dictValue):
     conditions = list(dictValue["conditions"])
-    # Verify the fields
     for value in conditions:
-        print(value)
-
-        # verify the resources from the fields [X]
-        # verify the identifiers from the fields [X]
         verify_field(value['field'])
-    # Verify the operators
+        print(value)
+        # verify_operators(value[])
+        # Verify the operators
         # verify the values in relation to the operator
-    # If operator between
-    # Verify if upper limit is greater than lower
-    # Verify if identifier is applicable to between operator
-    # If comparison
-    # Verify if identifier is aplicable to the operator
+        # If operator between
+        # Verify if upper limit is greater than lower
+        # Verify if identifier is applicable to between operator
+        # If comparison
+        # Verify if identifier is aplicable to the operator
 
 def verify_field(field):
     if field["resource"] not in allow_resources:
