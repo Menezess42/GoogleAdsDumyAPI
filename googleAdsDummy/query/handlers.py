@@ -4,15 +4,19 @@ from typing import List, Union
 from googleAdsDummy.query.searchQuery_schema import SEARCH_QUERY_SCHEMA
 
 allow_resources = SEARCH_QUERY_SCHEMA["resources"]
-allow_operators = SEARCH_QUERY_SCHEMA["operators"]
+allow_comparison_operators = SEARCH_QUERY_SCHEMA["comparison_operators"]
+allow_between_operators = SEARCH_QUERY_SCHEMA["between_operators"]
 allow_clauses = SEARCH_QUERY_SCHEMA["clauses"]
+allow_fields = {key: value
+            for resources in SEARCH_QUERY_SCHEMA["resources"].values()
+            for key, value in resources["fields"].items()}
 
-handlers_dictDispatch = {
+
+dictDispatch_handlers = {
     "where": lambda dictValue: handle_where(dictValue),
     "from_clause": lambda dictValue: handle_from(dictValue),
     "select": lambda dictValue: handle_select(dictValue),
 }
-
 
 def handle_from(dictValue):
     values = list(dictValue.values())
@@ -24,8 +28,8 @@ def handle_where(dictValue):
     conditions = list(dictValue["conditions"])
     for value in conditions:
         verify_field(value['field'])
-        print(value)
-        # verify_operators(value[])
+        operator2Verify = list(value.items())[1:]
+        verify_operators(operator2Verify, value['field']['field'])
         # Verify the operators
         # verify the values in relation to the operator
         # If operator between
@@ -45,6 +49,39 @@ def verify_field(field):
             f"Unexpected field {field['field']} in WHERE clause"
         )
 
+def verify_operators(operators_list, field):
+    lower_bound, upper_bound = operators_list
+    print(operators_list)
+    if lower_bound[0] in allow_between_operators:
+        print(field)
+        if allow_fields[field]["type"] not in ["int", "float", "date"]:
+            raise ValueError(
+                f"Field of type {allow_fields[field]["type"]} can not be used in BETWEEN comparison"
+            )
+
+        response_loUp_chck = verify_lower_upper_limits(lower_bound[1], upper_bound[1])
+
+        if not limitsType_equal_fieldType((lower_bound[1], upper_bound[1]), field):
+            raise ValueError(
+                f"Field and limits are not the same type"
+            )
+
+
+    elif lower_bound[1] in allow_comparison_operators:
+        # I operator not = I have to see if field int valid
+        if allow_fields[field]["type"] == "string" and lower_bound[1] != '=':
+            raise ValueError(
+                f"Field of type {allow_fields[field]['type']} doesn't work with the {lower_bound[1]} operator"
+            )
+
+        print(lower_bound)
+        print(upper_bound)
+    else:
+        raise ValueError(
+            f"Unexpected operator in WHERE clause"
+            )
+
+
 
 def handle_select(dictValue): ...
 
@@ -63,7 +100,7 @@ def handle_identifiers(identifier: dict) -> List[str]:
     return [resource, field, allowed_fields[field]["type"]]
 
 
-def check_lower_upper(
+def verify_lower_upper_limits(
     lower: Union[int, float, str], upper: Union[int, float, str]
 ) -> List:
     if type(lower) != type(upper):
@@ -79,3 +116,21 @@ def check_lower_upper(
             raise ValueError(f"BETWEEN clause invalid limit: <{lower}|{upper}>")
 
     return [lower, upper, type(lower).__name__]
+
+def limitsType_equal_fieldType(limits, field) -> bool:
+    ....
+
+if __name__ == "__main__":
+    verify_operators([('lower', '2024-01-01'), ('upper', '2025-01-02')], 'impressions')
+
+
+
+
+
+
+
+
+
+
+
+
