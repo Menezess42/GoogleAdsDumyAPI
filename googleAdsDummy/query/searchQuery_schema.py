@@ -69,9 +69,14 @@ SEARCH_QUERY_SCHEMA = {
             },
         },
     },
-    "operators": {
-        "comparison": ["=", ">", "<"],
-        "between": True,
+    "comparison_operators": {
+        "=": True,
+        ">": True,
+        "<": True
+    },
+    "between_operators": {
+        "lower": True,
+        "upper": True,
     },
     "clauses": {
         "select": True,
