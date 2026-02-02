@@ -51,9 +51,9 @@ def verify_field(field):
 
 def verify_operators(operators_list, field):
     lower_bound, upper_bound = operators_list
-    print(operators_list)
+
     if lower_bound[0] in allow_between_operators:
-        print(field)
+
         if allow_fields[field]["type"] not in ["int", "float", "date"]:
             raise ValueError(
                 f"Field of type {allow_fields[field]["type"]} can not be used in BETWEEN comparison"
@@ -61,11 +61,10 @@ def verify_operators(operators_list, field):
 
         response_loUp_chck = verify_lower_upper_limits(lower_bound[1], upper_bound[1])
 
-        if not limitsType_equal_fieldType((lower_bound[1], upper_bound[1]), field):
+        if not limitsType_compatible_with_field((lower_bound[1], upper_bound[1]), field):
             raise ValueError(
                 f"Field and limits are not the same type"
             )
-
 
     elif lower_bound[1] in allow_comparison_operators:
         # I operator not = I have to see if field int valid
@@ -74,12 +73,26 @@ def verify_operators(operators_list, field):
                 f"Field of type {allow_fields[field]['type']} doesn't work with the {lower_bound[1]} operator"
             )
 
-        print(lower_bound)
-        print(upper_bound)
     else:
         raise ValueError(
             f"Unexpected operator in WHERE clause"
             )
+
+
+def limitsType_compatible_with_field(limits, field) -> bool:
+    lower, upper = limits
+
+    field_type = allow_fields[field]["type"]  # ex: "int", "float", "date"
+
+    type_compatibility = {
+        "int":   {int},
+        "float": {int, float},
+        "date":  {str},
+    }
+
+    allowed_types = type_compatibility.get(field_type, set())
+
+    return type(lower) in allowed_types and type(upper) in allowed_types
 
 
 
@@ -117,11 +130,9 @@ def verify_lower_upper_limits(
 
     return [lower, upper, type(lower).__name__]
 
-def limitsType_equal_fieldType(limits, field) -> bool:
-    ....
 
 if __name__ == "__main__":
-    verify_operators([('lower', '2024-01-01'), ('upper', '2025-01-02')], 'impressions')
+    verify_operators([('lower', '2024-01-01'), ('upper', '2025-01-02')], 'date')
 
 
 
