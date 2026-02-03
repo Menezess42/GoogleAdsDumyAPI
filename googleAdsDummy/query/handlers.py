@@ -29,7 +29,6 @@ def handle_from(dictValue):
 
 
 def handle_where(dictValue):
-    print(dictValue)
     conditions = list(dictValue["conditions"])
     for value in conditions:
         verify_field(value["field"])
@@ -37,12 +36,18 @@ def handle_where(dictValue):
         verify_operators(operator2Verify, value["field"]["field"])
 
 
+def handle_select(dictValue):
+    for field in dictValue["fields"]:
+        verify_field(field)
+
+
 def verify_field(field):
+    print(field)
     if field["resource"] not in allow_resources:
-        raise ValueError(f"Unexpected column {field['resource']} in WHERE clause")
+        raise ValueError(f"Unexpected column {field['resource']}")
     resource = field["resource"]
     if field["field"] not in allow_resources[resource]["fields"]:
-        raise ValueError(f"Unexpected field {field['field']} in WHERE clause")
+        raise ValueError(f"Unexpected field {field['field']}")
 
 
 def verify_operators(operators_list, field):
@@ -104,23 +109,6 @@ def limitsType_compatible_with_field(limits, field) -> bool:
     allowed_types = type_compatibility.get(field_type, set())
 
     return limitsType in allowed_types
-
-
-def handle_select(dictValue): ...
-
-
-def handle_identifiers(identifier: dict) -> List[str]:
-    resource = identifier["resource"]
-
-    if resource not in allow_resources:
-        raise ValueError(f"unexpected resource {resource} at WHERE condition")
-
-    field = identifier["field"]
-    allowed_fields = allow_resources[resource]["fields"]
-    if field not in allowed_fields:
-        raise ValueError(f"unexpected field {field} at WHERE condition")
-
-    return [resource, field, allowed_fields[field]["type"]]
 
 
 if __name__ == "__main__":
