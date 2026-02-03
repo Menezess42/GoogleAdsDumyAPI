@@ -26,6 +26,7 @@ def handle_from(dictValue):
     values = list(dictValue.values())
     if not all(value in allow_resources for value in values):
         raise ValueError(f"resouces {values} from FROM are not allowed")
+    # returna whell format way of consuming the classes chosen
 
 
 def handle_where(dictValue):
@@ -34,11 +35,13 @@ def handle_where(dictValue):
         verify_field(value["field"])
         operator2Verify = list(value.items())[1:]
         verify_operators(operator2Verify, value["field"]["field"])
+    # returna whell format way of consuming the where constraints
 
 
 def handle_select(dictValue):
     for field in dictValue["fields"]:
         verify_field(field)
+    # returna whell format way of consuming the fields
 
 
 def verify_field(field):
