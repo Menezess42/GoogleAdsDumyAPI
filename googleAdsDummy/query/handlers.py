@@ -14,7 +14,6 @@ allow_fields = {
     for key, value in resources["fields"].items()
 }
 
-
 dictDispatch_handlers = {
     "where": lambda dictValue: handle_where(dictValue),
     "from_clause": lambda dictValue: handle_from(dictValue),
@@ -25,8 +24,12 @@ dictDispatch_handlers = {
 def handle_from(dictValue):
     values = list(dictValue.values())
     if not all(value in allow_resources for value in values):
-        raise ValueError(f"resouces {values} from FROM are not allowed")
-    # returna whell format way of consuming the classes chosen
+        raise ValueError(f"resouces {values} in FROM clause are not allowed")
+
+    return {
+        "type": "from",
+        "resource": dictValue["resource"]
+    }
 
 
 def handle_where(dictValue):
@@ -35,17 +38,23 @@ def handle_where(dictValue):
         verify_field(value["field"])
         operator2Verify = list(value.items())[1:]
         verify_operators(operator2Verify, value["field"]["field"])
-    # returna whell format way of consuming the where constraints
+
+    return {
+        "type": "where",
+        "conditions": conditions
+    }
 
 
 def handle_select(dictValue):
     for field in dictValue["fields"]:
         verify_field(field)
-    # returna whell format way of consuming the fields
 
+    return {
+        "type": "select",
+        "fields": dictValue["fields"]
+    }
 
 def verify_field(field):
-    print(field)
     if field["resource"] not in allow_resources:
         raise ValueError(f"Unexpected column {field['resource']}")
     resource = field["resource"]
