@@ -28,7 +28,6 @@ class Executor:
             response = dictDispatch_handlers[key](value)
             query_plan.append(response)
 
-        print(query_plan)
 
         return self.execute_query_plan(query_plan)
 
@@ -67,7 +66,7 @@ class Executor:
 
         if resource == "campaign":
             campaign_ids = self.world.list_campaigns()
-            items = [self.world.get_campaign(cid) for cid in campaign_ids]
+            items = [self.world.get_campaign(cid) for cid in campaign_ids] # ERROR: Passing the whole campaing object insted of just the ID
             return items
         else:
             raise ValueError(f"Resource {resource} not implemented yet")
@@ -131,7 +130,7 @@ class Executor:
 
     def get_clause_by_type(self, query_plan, clause_type):
         for clause in query_plan:
-            if clause_type["type"] == clause_type:
+            if clause["type"] == clause_type: # Lógica errada, devo olhar isso aqui.
                 return clause
 
         return None
