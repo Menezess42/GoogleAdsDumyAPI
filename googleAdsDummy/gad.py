@@ -72,6 +72,5 @@ if __name__ == "__main__":
     gad.create()
     gad.query(
         """SELECT campaign.id, campaign.budget_amount FROM
-        campaign WHERE campaign.budget_amount > 50 AND
-        campaign.budget_amount BETWEEN  10 AND 20"""
+        campaign WHERE campaign.budget_amount > 50"""
     )
