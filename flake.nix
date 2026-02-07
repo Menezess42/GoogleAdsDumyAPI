@@ -25,14 +25,14 @@
                 };
                 
                 gad-api = pkgs.python313Packages.buildPythonPackage {
-                    pname = "gad-api";
+                    pname = "googleAdsDummy";
                     version = "0.1.0";
                     pyproject = true;
                     src = pkgs.lib.cleanSourceWith {
                         src = ./.;
                         filter = path: type:
                             let baseName = baseNameOf path;
-                            in !(builtins.elem baseName [ "flake" ".direnv" ".git" "htmlcov" "htmlTestsReports" ".pytest_cache" ]);
+                            in !(builtins.elem baseName [ ".direnv" ".git" "htmlcov" "htmlTestsReports" ".pytest_cache" ]);
                     };
                     build-system = with pkgs.python313Packages; [ setuptools ];
                     propagatedBuildInputs = with pkgs.python313Packages; [
