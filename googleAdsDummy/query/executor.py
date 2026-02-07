@@ -63,10 +63,9 @@ class Executor:
     def fetch_base_items(self, query_plan):
         from_clause = self.get_clause_by_type(query_plan, "from")
         resource = from_clause["resource"]
-
+        
         if resource == "campaign":
-            campaign_ids = self.world.list_campaigns()
-            items = [self.world.get_campaign(cid) for cid in campaign_ids] # ERROR: Passing the whole campaing object insted of just the ID
+            items = self.world.list_campaigns()
             return items
         else:
             raise ValueError(f"Resource {resource} not implemented yet")
@@ -108,25 +107,32 @@ class Executor:
             return operador_func(valor_real, value)
 
     def project_fields(self, items, fields):
-        result = []
+        columns = []
+        for field_spec in fields:
+            resource = field_spec["resource"]
+            field_name = field_spec["field"]
+            columns.append(f"{resource}.{field_name}")
+        
+        data = []
         for item in items:
-            row = {}
+            row = []
             for field_spec in fields:
                 resource = field_spec["resource"]
                 field_name = field_spec["field"]
-
-                key = f"{resource}.{field_name}"
-
+                
                 if resource == "campaign":
-                    valor = getattr(item, f"get_{field_name}")()
+                    valor = getattr(item, field_name)
                 elif resource == "metrics":
-                    valor = getattr(item["metrics"], f"get_{field_name}")()
-
-                row[key] = valor
-
-            result.append(row)
-
-        return {"rows": result}
+                    valor = getattr(item["metrics"], field_name)
+                
+                row.append(valor)
+            data.append(row)
+    
+        return {
+            "columns": columns,
+            "data": data,
+            "count": len(data)
+        }
 
     def get_clause_by_type(self, query_plan, clause_type):
         for clause in query_plan:
