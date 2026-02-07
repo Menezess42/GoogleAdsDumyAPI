@@ -1,5 +1,5 @@
 from pydantic import StrictFloat, StrictInt, validate_call
-
+from pprint import pprint
 from googleAdsDummy.engine.world import World
 from googleAdsDummy.query.executor import Executor
 from googleAdsDummy.searchQueryCompiler.parser_SearchQuery import parse_query
@@ -70,7 +70,8 @@ if __name__ == "__main__":
         profile_rules=[["A", "B", "C"], ["A"], {"A": 0.25, "B": 0.50}],
     )
     gad.create()
-    gad.query(
+    r = gad.query(
         """SELECT campaign.id, campaign.budget_amount FROM
-        campaign WHERE campaign.budget_amount > 50"""
+        campaign WHERE campaign.budget_amount > 100"""
     )
+    pprint(r)
