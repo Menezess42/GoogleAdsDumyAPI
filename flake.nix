@@ -24,7 +24,7 @@
                     doCheck = false;
                 };
                 
-                gad-api = pkgs.python313Packages.buildPythonPackage {
+                googleAdsDummy = pkgs.python313Packages.buildPythonPackage {
                     pname = "googleAdsDummy";
                     version = "0.1.0";
                     pyproject = true;
@@ -58,7 +58,7 @@
                                          p.pytest-cov
                                          p.pytest-html
                                          p.pandas
-                                         gad-api
+                                         googleAdsDummy
                                          ]))
                 ] ++ baseShell.buildInputs;
                 dontUsePytestCheck = true;

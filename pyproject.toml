@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gad-api"
+name = "googleAdsDummy"
 version = "0.1.0"
 description = "Dummy API to mimicate the Google Ads API"
 readme = "README.md"

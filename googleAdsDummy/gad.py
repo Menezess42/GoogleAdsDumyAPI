@@ -71,7 +71,9 @@ if __name__ == "__main__":
     )
     gad.create()
     r = gad.query(
-        """SELECT campaign.id, campaign.budget_amount FROM
+        """SELECT campaign.name, campaign.id, campaign.budget_amount FROM
         campaign WHERE campaign.budget_amount > 100"""
     )
-    pprint(r)
+    for k, v in r.items():
+        print(k)
+        print(v)
