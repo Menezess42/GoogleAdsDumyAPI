@@ -5,7 +5,7 @@ from googleAdsDummy.gad import Gad
 
 os.makedirs("testeVisual", exist_ok=True)
 
-QUERY = """SELECT campaign.name, metrics.impressions, metrics.clicks, metrics.cost, metrics.conversions FROM campaign WHERE metrics.date BETWEEN '2024-01-01' AND '2024-01-31'"""
+QUERY = """SELECT campaign.name, metrics.impressions, metrics.clicks, metrics.cost, metrics.conversions FROM campaign WHERE metrics.date BETWEEN '2024-01-01' AND '2024-02-01'"""
 
 simulations = [
     {
@@ -67,28 +67,53 @@ def run_simulation(sim):
     r = gad.query(QUERY)
     df = pd.DataFrame(r["data"], columns=r["columns"])
 
-    metrics = ["metrics.impressions", "metrics.clicks", "metrics.cost", "metrics.conversions"]
-    titles = ["Impressions", "Clicks", "Cost", "Conversions"]
+    metrics = [
+        "metrics.impressions",
+        "metrics.clicks",
+        "metrics.cost",
+        "metrics.conversions",
+    ]
+    titles = [
+        "Impressions",
+        "Clicks",
+        "Cost",
+        "Conversions",
+    ]
+
+    start_date = "2024-11-30"
+    end_date = "2025-01-01"
+    expected_dates = pd.date_range(start=start_date, end=end_date, freq="D")
 
     fig, axes = plt.subplots(4, 1, figsize=(14, 14))
     fig.suptitle(f"{sim['name']}\n{sim['desc']}", fontsize=9)
 
     for campaign_name in df["campaign.name"].unique():
         subset = df[df["campaign.name"] == campaign_name].reset_index(drop=True)
-        subset["day"] = pd.date_range(start="2024-01-01", periods=len(subset), freq="D")
+
+        # força eixo X respeitar o range da query
+        subset["day"] = expected_dates[:len(subset)]
+
         for ax, metric, title in zip(axes, metrics, titles):
-            ax.plot(subset["day"], subset[metric], marker="o", markersize=2, label=campaign_name)
+            ax.plot(
+                subset["day"],
+                subset[metric],
+                linewidth=2,
+                label=campaign_name,
+            )
 
     for ax, title in zip(axes, titles):
         ax.set_title(title)
         ax.set_xlabel("Date")
         ax.legend(fontsize=6, loc="upper right")
         ax.grid(True, alpha=0.3)
+        ax.ticklabel_format(style="plain", axis="y")  # evita notação científica tipo 1e6
 
     plt.tight_layout()
+
     path = f"testeVisual/{sim['name']}.png"
     plt.savefig(path, dpi=150, bbox_inches="tight")
     plt.close()
+
     print(f"✓ {sim['name']}")
 
 

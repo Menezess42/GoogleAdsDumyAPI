@@ -77,6 +77,7 @@ class Executor:
         expanded = []
         for campaign in campaigns:
             for d in date_range:
+                print(d)
                 metrics = generate_metrics(self.world, campaign.id, d.isoformat())
                 expanded.append({"campaign": campaign, "metrics": metrics})
 
