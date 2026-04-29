@@ -111,7 +111,7 @@ def generate_metrics(world, campaign_id: str, date_str: str) -> CampaignMetrics:
     )
     conversions = min(clicks, int(clicks * conv_rate))
 
-    cost_per_click = rng.uniform(0.5, 2.0) * (campaign.budget_amount / 1000)
+    cost_per_click = rng.uniform(0.8, 1.2) * (campaign.budget_amount / 1000)
     cost = round(clicks * cost_per_click, 2)
 
     cpa = round(cost / conversions, 2) if conversions > 0 else 0.0
