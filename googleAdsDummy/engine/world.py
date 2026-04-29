@@ -41,7 +41,7 @@ class World:
     def _allowed_profiles(self, profile_rules: Profile_rules) -> None:
         if not profile_rules.allow_profiles.issubset(set(get_args(ProfileType))):
             raise ValueError("allowed_profiles should have only existent profiles")
-        if len(profile_rules.ensure_at_least_one) > self.num_campaigns:
+        if profile_rules.ensure_at_least_one and len(profile_rules.ensure_at_least_one) > self.num_campaigns:
             raise ValueError(
                 "Number of profile ensurment can't be greateer that the number of campaigns"
             )
@@ -84,3 +84,5 @@ class World:
             profile_rules=self.profile_rules,
             campaign_profiles=self.campaign_profiles,
         )
+    def get_profile(self, campaign_id: str) -> ProfileType:
+        return self.campaign_profiles[campaign_id]

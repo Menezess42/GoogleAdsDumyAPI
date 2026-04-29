@@ -7,10 +7,10 @@
     };
     outputs = {self, nixpkgs, flake-utils, essentials}:
         flake-utils.lib.eachDefaultSystem(system:
-                let
+            let
                 pkgs = import nixpkgs {inherit system; };
                 baseShell = essentials.devShells.${system}.python;
-                
+
                 faker_commerce = pkgs.python313Packages.buildPythonPackage rec {
                     pname = "faker-commerce";
                     version = "1.0.4";
@@ -23,7 +23,7 @@
                     propagatedBuildInputs = with pkgs.python313Packages; [ faker ];
                     doCheck = false;
                 };
-                
+
                 googleAdsDummy = pkgs.python313Packages.buildPythonPackage {
                     pname = "googleAdsDummy";
                     version = "0.1.0";
@@ -43,29 +43,30 @@
                     ];
                     doCheck = false;
                 };
-                
-                in
+
+            in
                 {
                 devShell = pkgs.mkShell {
-                name = "GoogleAdsDummyAPI";
-                buildInputs = with pkgs; [
-                (python313.withPackages (p:
-                                         [
-                                         p.faker
-                                         faker_commerce
-                                         p.pydantic
-                                         p.pytest
-                                         p.pytest-cov
-                                         p.pytest-html
-                                         p.pandas
-                                         googleAdsDummy
-                                         ]))
-                ] ++ baseShell.buildInputs;
-                dontUsePytestCheck = true;
-                doCheck = false;
+                    name = "GoogleAdsDummyAPI";
+                    buildInputs = with pkgs; [
+                        (python313.withPackages (p:
+                            [
+                                p.faker
+                                faker_commerce
+                                p.pydantic
+                                p.pytest
+                                p.pytest-cov
+                                p.pytest-html
+                                p.pandas
+                                p.matplotlib
+                                googleAdsDummy
+                            ]))
+                    ] ++ baseShell.buildInputs;
+                    dontUsePytestCheck = true;
+                    doCheck = false;
                     shellHook = ''
                       echo "GoogleAdsDummy dev environment loaded"
                     '';
                 };
-                });
+            });
 }

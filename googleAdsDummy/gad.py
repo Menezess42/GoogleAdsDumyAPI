@@ -66,13 +66,12 @@ if __name__ == "__main__":
         num_campaigns=3,
         weekend_factor=0.5,
         date_period=("2024-01-01", "2025-05-01"),
-        anomaly_rules=[True, 0.5, (0.5, 0.2)],
+        anomaly_rules=[False, 0.0, (0.0, 0.0)],
         profile_rules=[["A", "B", "C"], ["A"], {"A": 0.25, "B": 0.50}],
     )
     gad.create()
     r = gad.query(
-        """SELECT campaign.name, campaign.id, campaign.budget_amount FROM
-        campaign WHERE campaign.budget_amount > 100"""
+        """SELECT campaign.name, metrics.impressions, metrics.clicks, metrics.cost FROM campaign WHERE metrics.date BETWEEN '2024-01-01' AND '2024-01-31'"""
     )
     for k, v in r.items():
         print(k)
